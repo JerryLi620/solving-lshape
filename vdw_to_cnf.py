@@ -1,8 +1,25 @@
+import math 
 def var(i, j, r):
     """Returns the variable number for integer i in color class Cj."""
     return (i - 1) * r + j
+  
+# A function to find largest prime factor 
+def maxPrimeFactors(n): 
+    maxPrime = -1
+    while n % 2 == 0: 
+        maxPrime = 2
+        n >>= 1    
+          
+    for i in range(3, int(math.sqrt(n)) + 1, 2): 
+        while n % i == 0: 
+            maxPrime = i 
+            n = n / i 
+    if n > 2: 
+        maxPrime = n 
+      
+    return int(maxPrime) 
 
-def vdw_to_cnf(n, r, k, filename="vdw.cnf"):
+def vdw_to_cnf(n, r, k, repetition_clause = False, reflection_clause = False, rotation_clause = False, filename="vdw.cnf"):
     """
     Encode Van der Waerden number into a CNF file.
 
@@ -13,25 +30,10 @@ def vdw_to_cnf(n, r, k, filename="vdw.cnf"):
         filename (str): The name of the file to output the CNF formula.
     """
     clauses = []
+    m = n/(k-1) # defined by Heule
     if r == 1 or k <= 2:
         print("Trivial case.") 
-
-    # if r == 2:
-    #     # Clauses to prevent arithmetic progression in C1 \{¬x_a,¬x_{a+d},…,¬x_{a+d(t_1−1)}\}
-    #     for a in range(1, n - k + 2):  # Ensure a + d(k-1) <= n
-    #         for d in range(1, (n - a) // (k - 1) + 1):
-    #             # Add clause {¬xa, ¬xa+d, ..., ¬xa+d(k−1)}
-    #             clause = [-((a + (i - 1) * d)) for i in range(1, k + 1)]
-    #             clauses.append(" ".join(map(str, clause)) + " 0")
-
-    #     # Clauses to prevent arithmetic progression in C2 \{x_a,x_{a+d},…,x_{a+d(t_2−1)}\}
-    #     for a in range(1, n - k + 2):
-    #         for d in range(1, (n - a) // (k - 1) + 1):
-    #             # Add clause {xa, xa+d, ..., xa+d(k−1)}
-    #             clause = [(a + (i - 1) * d) for i in range(1, k + 1)]
-    #             clauses.append(" ".join(map(str, clause)) + " 0")
-
-    if r >= 2:
+    else:
         # Covering clause: \{x_{i,1},x_{i,2},...,x_{i,r}\} 
         # Ensures that every integer at least belongs to one color class
         for i in range(1, n + 1):
@@ -54,7 +56,39 @@ def vdw_to_cnf(n, r, k, filename="vdw.cnf"):
                 for d in range(1, (n - a) // (k - 1) + 1):
                     clause = [-var(a + (i - 1) * d, j, r) for i in range(1, k + 1)]
                     clauses.append(" ".join(map(str, clause)) + " 0")
-                    
+    # Addion of repetition clause: (¬x_{i,s} ∨ x_{i+m,s}) ∧ (x{i,s} ∨ ¬x{i+m,s})
+    # From Heule's paper, this is inspired from the observation that most extreme certificates and 
+    # the best known lower bounds of W(k,l) show a repetition of l − 1 times the same pattern
+    if repetition_clause:
+        for i in range(1, m*k-m+1):
+            for s in range(1, r+1):
+                clause1 = [-var(i, s, r), var(i+m, s, r)]      
+                clause2 = [var(i, s, r), -var(i+m, s, r)]
+                clauses.append(" ".join(map(str, clause1)) + " 0")    
+                clauses.append(" ".join(map(str, clause2)) + " 0")  
+
+    # Addition of reflection clause: (¬x_{i,s} ∨ x_{m-i,r+1-s}) ∧ (x{i,s} ∨ ¬x{m-i,r+1-s})
+    # From Heule's paper, this is helps insured the symmetry of the visualization of the certificate
+    if reflection_clause:
+        for i in range(1, m//2+1):
+            for s in range(1, r+1):
+                clause1 = [-var(i, s, r), var(m-i, r+1-s, r)]
+                clause2 = [var(i, s, r), -var(m-i, r+1-s, r)]
+                clauses.append(" ".join(map(str, clause1)) + " 0")    
+                clauses.append(" ".join(map(str, clause2)) + " 0") 
+
+    # Addition of rotation clause: (¬x_{i,s} ∨ x_{i+p_m,s(mod r)+1}) ∧ (x{i,s} ∨ ¬x{i+p_m,s(mod r)+1})
+    # From Huele's paper, he observed that this rotation was the result of zipping, and all the visualization
+    # of the certificates were rotated by 360/r degrees
+    if rotation_clause:
+        p_m = maxPrimeFactors(m)
+        for i in range(1, m-p_m+1):
+            for s in range(1, r+1):
+                clause1 = [-var(i, s, r), var(i+p_m, s%r+1, r)]
+                clause2 = [var(i, s, r), -var(i+p_m, s%r+1, r)]
+                clauses.append(" ".join(map(str, clause1)) + " 0")    
+                clauses.append(" ".join(map(str, clause2)) + " 0") 
+    
     with open(filename, "w") as f:
         f.write(f"p cnf {n} {len(clauses)}\n")
         for clause in clauses:
@@ -62,5 +96,5 @@ def vdw_to_cnf(n, r, k, filename="vdw.cnf"):
     return clauses
 
 
-vdw_to_cnf(n=8, r=2, k=3, filename="vdw_2_3.cnf") 
+vdw_to_cnf(n=75, r=4, k=3, filename="vdw_4_3.cnf") 
 # vdw_to_cnf(n=5, r=3, k=3, filename="vdw_3_3.cnf") 
