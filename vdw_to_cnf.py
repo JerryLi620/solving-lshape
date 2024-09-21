@@ -1,25 +1,28 @@
 import math 
 def var(i, j, r):
-    """Returns the variable number for integer i in color class Cj."""
+    """
+    Returns the variable number for integer i in color class Cj.
+
+    Parameters:
+        i (int): Position of block.
+        j (int): Color class.
+        r (int): Number of colors.
+    """
     return (i - 1) * r + j
   
 # A function to find largest prime factor 
-def maxPrimeFactors(n): 
-    maxPrime = -1
-    while n % 2 == 0: 
-        maxPrime = 2
-        n >>= 1    
-          
-    for i in range(3, int(math.sqrt(n)) + 1, 2): 
-        while n % i == 0: 
-            maxPrime = i 
-            n = n / i 
-    if n > 2: 
-        maxPrime = n 
-      
-    return int(maxPrime) 
+def maxPrimeFactor(n):
+    factors = []
+    d = 2
+    while n > 1:
+        while n % d == 0:
+            factors.append(d)
+            n /= d
+        d = d + 1
 
-def vdw_to_cnf(n, r, k, repetition_clause = False, reflection_clause = False, rotation_clause = False, filename="vdw.cnf"):
+    return max(factors)
+
+def vdw_to_cnf(n, r, k, write = False, repetition_clause = False, reflection_clause = False, rotation_clause = False, filename="vdw.cnf"):
     """
     Encode Van der Waerden number into a CNF file.
 
@@ -30,7 +33,7 @@ def vdw_to_cnf(n, r, k, repetition_clause = False, reflection_clause = False, ro
         filename (str): The name of the file to output the CNF formula.
     """
     clauses = []
-    m = n/(k-1) # defined by Heule
+    m = n//(k-1) # defined by Heule
     if r == 1 or k <= 2:
         print("Trivial case.") 
     else:
@@ -81,7 +84,7 @@ def vdw_to_cnf(n, r, k, repetition_clause = False, reflection_clause = False, ro
     # From Huele's paper, he observed that this rotation was the result of zipping, and all the visualization
     # of the certificates were rotated by 360/r degrees
     if rotation_clause:
-        p_m = maxPrimeFactors(m)
+        p_m = maxPrimeFactor(m)
         for i in range(1, m-p_m+1):
             for s in range(1, r+1):
                 clause1 = [-var(i, s, r), var(i+p_m, s%r+1, r)]
@@ -89,12 +92,13 @@ def vdw_to_cnf(n, r, k, repetition_clause = False, reflection_clause = False, ro
                 clauses.append(" ".join(map(str, clause1)) + " 0")    
                 clauses.append(" ".join(map(str, clause2)) + " 0") 
     
-    with open(filename, "w") as f:
-        f.write(f"p cnf {n} {len(clauses)}\n")
-        for clause in clauses:
-            f.write(clause + "\n")
+    if write:
+        with open(filename, "w") as f:
+            f.write(f"p cnf {n} {len(clauses)}\n")
+            for clause in clauses:
+                f.write(clause + "\n")
     return clauses
 
 
-vdw_to_cnf(n=75, r=4, k=3, filename="vdw_4_3.cnf") 
+# vdw_to_cnf(n=8, r=2, k=3, filename="vdw_8_2_3.cnf") 
 # vdw_to_cnf(n=5, r=3, k=3, filename="vdw_3_3.cnf") 
