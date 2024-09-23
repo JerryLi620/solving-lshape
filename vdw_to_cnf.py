@@ -1,4 +1,3 @@
-import math 
 def var(i, j, r):
     """
     Returns the variable number for integer i in color class Cj.
@@ -97,8 +96,11 @@ def vdw_to_cnf(n, r, k, write = False, repetition_clause = False, reflection_cla
             f.write(f"p cnf {n} {len(clauses)}\n")
             for clause in clauses:
                 f.write(clause + "\n")
+        print("Successfully created cnf file")
     return clauses
 
-
-# vdw_to_cnf(n=8, r=2, k=3, filename="vdw_8_2_3.cnf") 
-# vdw_to_cnf(n=5, r=3, k=3, filename="vdw_3_3.cnf") 
+# Experiment
+n=75
+r=4
+k=3
+vdw_to_cnf(n, r, k, write = True, filename=f"vdw_{n}_{r}_{k}.cnf") 
