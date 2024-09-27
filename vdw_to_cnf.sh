@@ -1,7 +1,8 @@
 #!/bin/bash
 #SBATCH --partition=mcs-project
 #SBATCH --account=projects
-#SBATCH --qos=project 
+#SBATCH --qos=project
+#SBATCH --mem 128G
 
 eval "$(conda shell.bash hook)"
 conda activate thesis

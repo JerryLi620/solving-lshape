@@ -7,4 +7,4 @@ eval "$(conda shell.bash hook)"
 conda activate thesis
 
 cd /home/DAVIDSON/mili/Senior-Thesis
-glucose/parallel/glucose-syrup vdw_75_4_3.cnf vdw_75_4_3_results_2.txt
+glucose/parallel/glucose-syrup -verb=0 -model vdw_paintover_100_5_3.cnf  > vdw_paintover_100_5_3_result.txt

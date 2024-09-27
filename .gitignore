@@ -2,3 +2,4 @@
 *.cnf
 *.txt
 *.out
+__pycache__/*.pyc
