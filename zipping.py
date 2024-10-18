@@ -32,7 +32,7 @@ class ZippingCertificate:
         self.zipped_classes_temp = self.color_classes
         return self.color_classes
 
-    def zipping(self, q):
+    def zipping(self, p, q):
         """
         Performs the zipping operation to construct W(k, l, pq) from W(k, l, p).
         """
@@ -42,7 +42,7 @@ class ZippingCertificate:
             for i in elements:
                 for j in range(q):
                     # Zipping
-                    new_elem = (i * q + j * self.p - 1) % (self.p*q)+1
+                    new_elem = (i * q + j * self.p - 1) % (p*q)+1
                     
                     new_class = (s - 1 + j * ceiling(self.k / 2)) % self.k + 1
                     self.zipped_classes[f"C_{new_class}"].append(new_elem)
@@ -85,10 +85,14 @@ class ZippingCertificate:
         self.display_classes(base_classes)
         # Perform the zipping
         print(f"Generating W({self.k}, {self.l}, {self.p * math.prod(self.q_list)}) through zipping")
-        for q in self.q_list:
-            zipped_classes = self.zipping(q)
-            self.display_classes(zipped_classes)
-
+        p = self.p
+        for i, q in enumerate(self.q_list):
+            zipped_classes = self.zipping(p, q)
+            p*=q # not mentioned in Heule's paper!!!
+            if i == len(self.q_list)-1:
+                self.zipped_classes["C_1"].append(0) #add 0 in the last zipping run
+            self.display_classes(zipped_classes)    
+        
         # Apply the repetition property
         print(f"Generating W({self.k}, {self.l}, {self.p * (math.prod(self.q_list) * (self.l - 1)) + 1})")
         expanded_classes = self.apply_repetition_property(m=self.p*math.prod(self.q_list))
