@@ -2,10 +2,10 @@ from sympy import isprime, primefactors
 from sympy.ntheory.residue_ntheory import primitive_root
 
 
-class PrimitiveRootColoring:
+class PowerResidueColoring:
     def __init__(self, p, k, l):
         """
-        Initializes the PrimitiveRootColoring instance.
+        Initializes the PowerResidueColoring instance.
 
         Parameters:
         - p: A prime number.
@@ -71,9 +71,7 @@ class PrimitiveRootColoring:
             
         # Add p_n to C_k
         self.color_classes[f"C_{self.k}"].append(self.p_n)
-        # Add 0 to C_1
-        self.color_classes["C_1"].append(0)
-
+        
     def expand_certificate(self):
         """
         Expands the certificate using the repetition property.
@@ -95,6 +93,8 @@ class PrimitiveRootColoring:
                 for j in range(self.l - 1): 
                     new_elem = elem + j * self.p
                     self.expanded_classes[class_label].append(new_elem)
+        # Add 0 to C_1
+        self.expanded_classes["C_1"].append(0)
 
 
     def run(self):
@@ -141,7 +141,7 @@ class PrimitiveRootColoring:
 
 
 #create W(4, 3, 75)
-pr_coloring = PrimitiveRootColoring(p=37, k=4, l=3)
-expanded_color_classes = pr_coloring.run_with_expansion()
-pr_coloring.display_color_classes()
-pr_coloring.display_expanded_classes()
+# pr_coloring = PowerResidueColoring(p=37, k=4, l=3)
+# expanded_color_classes = pr_coloring.run_with_expansion()
+# pr_coloring.display_color_classes()
+# pr_coloring.display_expanded_classes()
