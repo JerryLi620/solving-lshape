@@ -55,13 +55,11 @@ def visualize_snake_path(sat_output_str, N, C):
     sat_output = list(map(int, sat_output_str.split()))
 
     directions = [(-1, 0)]  # C1 moves left (horizontal to the left)
-
     # Assign directions to each color class based on rotation
-    for s in range(2, C + 1):
-        angle = 360 * (s - 1) / C 
+    for s in range(1, C):
+        angle = (180 - 360 * s/ C) % 360
         angle_rad = np.radians(angle)  
-        directions.append((np.cos(angle_rad), np.sin(angle_rad))) 
-    print(directions)
+        directions.append((round(np.cos(angle_rad), 2), round(np.sin(angle_rad), 2))) 
     current_pos = np.array([0, 0])
     scale_factor = 1/N
 
@@ -83,10 +81,9 @@ def visualize_snake_path(sat_output_str, N, C):
             # Compute the next position based on the direction
             current_pos = previous_pos + direction
 
-            # Draw an arrow from previous_pos to current_pos
-            plt.arrow(previous_pos[0], previous_pos[1], current_pos[0] - previous_pos[0],
-                      current_pos[1] - previous_pos[1],
-                      fc=colors[v % len(colors)], ec=colors[v % len(colors)], )
+            # Draw a line from previous_pos to current_pos 
+            plt.plot([previous_pos[0], current_pos[0]], [previous_pos[1], current_pos[1]], 
+                     color=colors[v % len(colors)], linewidth=0.5)
             # Update previous position to the current position
             previous_pos = current_pos.copy()
 
