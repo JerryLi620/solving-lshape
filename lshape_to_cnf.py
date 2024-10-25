@@ -53,6 +53,6 @@ def lshape_to_cnf(N, C, filename="lshape.cnf"):
         f.seek(0, 0)
         f.write(f"p cnf {num_variables} {num_clauses}\n" + content)
 # Experiment
-N=21
+N=6
 C=3
 lshape_to_cnf(N, C, filename=f"lshape_{N}_{C}.cnf")
