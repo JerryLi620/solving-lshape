@@ -19,7 +19,7 @@ def lshape_to_cnf(N, C, filename="lshape.cnf"):
 
     with open(filename, "w") as f:
         # Iterate over the grid cells
-        for r in range(1, N + 1):  # r runs over 1,...,N
+        for r in range(1, N + 1): 
             for c in range(1, N + 1):
                 # 1. The cell at (r, c) has at least one value
                 at_least_one_clause = [var(r, c, v, N, C) for v in range(1, C + 1)]
@@ -53,6 +53,6 @@ def lshape_to_cnf(N, C, filename="lshape.cnf"):
         f.seek(0, 0)
         f.write(f"p cnf {num_variables} {num_clauses}\n" + content)
 # Experiment
-N=6
+N=19
 C=3
 lshape_to_cnf(N, C, filename=f"lshape_{N}_{C}.cnf")

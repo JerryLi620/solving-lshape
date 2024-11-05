@@ -1,6 +1,6 @@
 from vdw_to_cnf import *
 from tqdm import tqdm
-from decode_result import *
+from vdw.decode_result import *
 def read_value(file_path):
     """
     Reads a glucose output file and returns the line that starts with 'v' as a string.
