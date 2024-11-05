@@ -47,12 +47,23 @@ def lshape_to_cnf(N, C, filename="lshape.cnf"):
                             f.write(" ".join(map(str, no_lshape_clause)) + " 0\n")
                             num_clauses += 1
 
+        # 4. Add symmetry-breaking clauses to prevent color isomorphism
+        if C > 1:
+            # Fix the color of the top-left cell
+            f.write(f"{var(1, 1, 1, N, C)} 0\n")
+            num_clauses += 1
+
+        if C > 2:
+            # Fix the color of the second cell 
+            f.write(f"{var(1, 2, 2, N, C)} 0\n")
+            num_clauses += 1
+            
     # Write CNF header (at the beginning of the file)
     with open(filename, "r+") as f:
         content = f.read()
         f.seek(0, 0)
         f.write(f"p cnf {num_variables} {num_clauses}\n" + content)
 # Experiment
-N=19
-C=3
+N=4
+C=2
 lshape_to_cnf(N, C, filename=f"lshape_{N}_{C}.cnf")
