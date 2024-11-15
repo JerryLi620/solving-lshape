@@ -92,8 +92,8 @@ def visualize_snake_path(sat_output_str, N, C):
     plt.savefig(f"snake_path_{N}_{C}.jpg", dpi = 1000)
 
 # Example SAT solver output in string format
-sat_output = "1 -2 -3 -4 5 -6 -7 8 -9 10 -11 -12 13 -14 -15 -16 -17 18 -19 20 -21 -22 -23 24 -25 -26 27 28 -29 -30 -31 32 -33 34 -35 -36 -37 38 -39 -40 41 -42 43 -44 -45 -46 -47 48 0"
-visualize_snake_path(sat_output, N=4, C=3)
+sat_output = "1 -2 3 -4 -5 6 7 -8 9 -10 -11 12 13 -14 15 -16 -17 18 -19 20 21 -22 -23 24 25 -26 27 -28 -29 30 -31 32 0"
+# visualize_snake_path(sat_output, N=6, C=3)
 
-#visualize_color_grid(sat_output, N=6, C=3)
+visualize_color_grid(sat_output, N=4, C=2)
 
