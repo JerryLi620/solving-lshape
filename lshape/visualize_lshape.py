@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-def visualize_color_grid(sat_output_str, N, C):
+def visualize_sat_output(sat_output_str, N, C):
     """
     Visualizes the SAT solver output for the L-shape avoidance problem as a color grid
     using blue, red, and green colors, without gridlines and axis.
@@ -38,9 +38,44 @@ def visualize_color_grid(sat_output_str, N, C):
     
     plt.savefig(f"grid_{N}_{C}.jpg")
 
+def visualize_color_grids(grids):
+    """
+    Visualizes a list of 2D grids with color coding for cell values.
 
-import numpy as np
-import matplotlib.pyplot as plt
+    Parameters:
+        grids (list of nested lists): List of 2D grids representing the solutions.
+        Each cell contains an integer value.
+    """
+    n = len(grids)
+    cols = min(4, n)  # Number of columns per row
+    rows = (n + cols - 1) // cols  # Calculate required rows
+
+    fig, axes = plt.subplots(rows, cols, figsize=(cols * 2, rows * 2))
+
+    if n == 1:
+        axes = [axes]
+    else:
+        axes = axes.flatten()
+
+    for i, grid in enumerate(grids):
+        grid = np.array(grid)
+        N, C = grid.shape[0], np.max(grid)
+        colors = ['blue', 'red', 'green']
+        cmap = mcolors.ListedColormap(colors[:C])
+
+        axes[i].imshow(grid, cmap=cmap, origin='upper')
+        axes[i].axis('off')
+        axes[i].set_title(f"Grid {i+1}")
+        
+    if n > 1:
+        for j in range(len(grids), len(axes)):
+            axes[j].axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+
+
 
 def visualize_snake_path(sat_output_str, N, C):
     """
@@ -91,9 +126,4 @@ def visualize_snake_path(sat_output_str, N, C):
 
     plt.savefig(f"snake_path_{N}_{C}.jpg", dpi = 1000)
 
-# Example SAT solver output in string format
-sat_output = "1 -2 3 -4 -5 6 7 -8 9 -10 -11 12 13 -14 15 -16 -17 18 -19 20 21 -22 -23 24 25 -26 27 -28 -29 30 -31 32 0"
-# visualize_snake_path(sat_output, N=6, C=3)
-
-visualize_color_grid(sat_output, N=4, C=2)
 

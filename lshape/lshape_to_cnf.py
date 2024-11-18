@@ -163,9 +163,3 @@ def add_non_isomorphic_constraints(filename, solution, N, C):
     
     print("Added non-isomorphic clauses.")
     
-N=4
-C=2
-lshape_to_cnf(N, C, filename=f"lshape_{N}_{C}.cnf")
-solution = "1 -2 -3 4 5 -6 -7 8 -9 10 11 -12 13 -14 -15 16 -17 18 19 -20 -21 22 -23 24 25 -26 -27 28 29 -30 -31 32"
-clauses = get_non_isomorphic_clauses(solution, N, C)
-print(len(clauses))
