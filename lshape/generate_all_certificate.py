@@ -3,6 +3,7 @@ from .lshape_to_cnf import *
 import itertools
 from sympy import Matrix
 from tqdm import tqdm
+from sympy.combinatorics import Permutation, PermutationGroup
 
 def solve_L_shape(N, C):
     solution_set = []
@@ -79,14 +80,16 @@ def is_isomorphic(solution1, solution2, N):
     grid1 = Matrix(solution1)
     grid2 = Matrix(solution2)
 
-    row_perms = list(itertools.permutations(range(N)))
-    col_perms = list(itertools.permutations(range(N)))
+    # Define row and column permutation groups
+    row_group = PermutationGroup(*[Permutation(p) for p in itertools.permutations(range(N))])
+    col_group = PermutationGroup(*[Permutation(p) for p in itertools.permutations(range(N))])
 
-    for row_perm in row_perms:
-        for col_perm in col_perms:
+    # Iterate over unique row and column permutations
+    for row_perm in row_group.generate():
+        for col_perm in col_group.generate():
             # Apply the row and column permutations
-            permuted_grid = grid1.permute_rows(row_perm)
-            permuted_grid = permuted_grid.permute_cols(col_perm)
+            permuted_grid = grid1.permute_rows(row_perm.array_form)
+            permuted_grid = permuted_grid.permute_cols(col_perm.array_form)
 
             # Check if the permuted grid is equal to the target grid
             if permuted_grid == grid2:
@@ -140,26 +143,31 @@ def generate_isomorphic_solutions(matrix, N, C):
         list of 2D lists: All SAT solutions in the same isomorphic group.
     """
     grid = Matrix(matrix)
-    row_perms = list(itertools.permutations(range(N)))
-    col_perms = list(itertools.permutations(range(N)))
+
+    # Define row and column permutation groups
+    row_group = PermutationGroup(*[Permutation(p) for p in itertools.permutations(range(N))])
+    col_group = PermutationGroup(*[Permutation(p) for p in itertools.permutations(range(N))])
 
     isomorphic_solutions = []
 
-    # Generate all row and column permutations
-    for row_perm in row_perms:
-        for col_perm in col_perms:
+    # Iterate over unique row and column permutations
+    for row_perm in row_group.generate():
+        for col_perm in col_group.generate():
             # Apply the row and column permutations
-            permuted_grid = grid.permute_rows(row_perm)
-            permuted_grid = permuted_grid.permute_cols(col_perm)
+            permuted_grid = grid.permute_rows(row_perm.array_form)
+            permuted_grid = permuted_grid.permute_cols(col_perm.array_form)
 
+            # Convert to a proper numeric list
             permuted_matrix = [[int(x) for x in permuted_grid.row(i)] for i in range(N)]
-            
-            # Check if the permuted solution satisfies the l shape
+
+            # Check if the permuted solution satisfies the L-shape constraints
             if is_sat(permuted_matrix, N, C):
                 if permuted_matrix not in isomorphic_solutions:
                     isomorphic_solutions.append(permuted_matrix)
+    
     print(f"All {len(isomorphic_solutions)} isomorphic solutions found.")
     return isomorphic_solutions
+
 
 
 # solutions = solve_L_shape(4, 2)

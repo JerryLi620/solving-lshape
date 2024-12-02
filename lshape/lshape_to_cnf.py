@@ -1,7 +1,8 @@
+import itertools
+from sympy.combinatorics import Permutation, PermutationGroup
+
 # A helper: get the Dimacs CNF variable number for the variable v {r,c,v} 
 # encoding the fact that the cell at (r,c) has the value v
-import itertools
-
 def var(r, c, v, N, C):
     assert(1 <= r <= N and 1 <= c <= N and 1 <= v <= C) 
     return (r - 1) * N * C + (c - 1) * C + (v - 1) + 1
@@ -118,30 +119,30 @@ def get_non_isomorphic_clauses(solution, N, C):
             v = ((literal - 1) % C) + 1
             grid[r - 1][c - 1] = v
 
-    # Generate all possible row, column, and color permutations
-    row_perms = list(itertools.permutations(range(N)))
-    col_perms = list(itertools.permutations(range(N)))
-    color_perms = list(itertools.permutations(range(1, C + 1)))  # Color values are 1 to C
+    # Define row and column permutation groups
+    row_group = PermutationGroup(*[Permutation(p) for p in itertools.permutations(range(N))])
+    col_group = PermutationGroup(*[Permutation(p) for p in itertools.permutations(range(N))])
+    color_group = PermutationGroup(*[Permutation(p) for p in itertools.permutations(range(C))])  
 
     clauses = []
 
-    # For each permutation triplet (row_perm, col_perm, color_perm), prevent isomorphic solutions
-    for row_perm in row_perms:
-        for col_perm in col_perms:
-            for color_perm in color_perms:
+    # Iterate over unique row, column, and color permutations
+    for row_perm in row_group.generate():
+        for col_perm in col_group.generate():
+            for color_perm in color_group.generate():
                 permuted_clauses = []
                 for r in range(N):
                     for c in range(N):
                         original_val = grid[r][c]
-                        # Apply the color permutation to the original value
-                        perm_val = color_perm[original_val - 1]  # Map original_val through color_perm
-                        perm_r = row_perm[r]
-                        perm_c = col_perm[c]
+                        perm_val = color_perm(original_val - 1) + 1  # Adjust for 0-based indexing in Permutation
+                        perm_r = row_perm(r)
+                        perm_c = col_perm(c)
                         permuted_literal = var(perm_r + 1, perm_c + 1, perm_val, N, C)
                         permuted_clauses.append(-permuted_literal)
                 clauses.append(permuted_clauses)
 
     return clauses
+
 
 
 def add_non_isomorphic_constraints(filename, solution, N, C):

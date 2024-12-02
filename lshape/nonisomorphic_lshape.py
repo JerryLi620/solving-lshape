@@ -1,4 +1,5 @@
 import itertools
+from sympy.combinatorics import Permutation, PermutationGroup
 # A helper: get the Dimacs CNF variable number for the variable v {r,c,v} 
 # encoding the fact that the cell at (r,c) has the value v
 def var(r, c, v, N, C):
@@ -26,26 +27,32 @@ class SATGridProcessor:
         return grid
 
     def generate_non_isomorphic_constraints(self):
-        row_perms = list(itertools.permutations(range(self.N)))
-        col_perms = list(itertools.permutations(range(self.N)))
-        
+        """
+        Generate clauses to prevent isomorphic solutions using permutation groups.
+
+        Returns:
+            list: A list of CNF clauses to prevent isomorphic solutions.
+        """
+        # Define row and column permutation groups
+        row_group = PermutationGroup(*[Permutation(p) for p in itertools.permutations(range(self.N))])
+        col_group = PermutationGroup(*[Permutation(p) for p in itertools.permutations(range(self.N))])
+
         clauses = []
-        
-        # For each permutation pair (row_perm, col_perm), prevent isomorphic solutions
-        for row_perm in row_perms:
-            for col_perm in col_perms:
+
+        # Iterate over unique permutations from the group generators
+        for row_perm in row_group.generate():
+            for col_perm in col_group.generate():
                 permuted_clauses = []
-                
                 for r in range(self.N):
                     for c in range(self.N):
                         original_val = self.grid[r][c]
-                        perm_r = row_perm[r]
-                        perm_c = col_perm[c]
+                        perm_r = row_perm(r) 
+                        perm_c = col_perm(c) 
                         permuted_literal = var(perm_r + 1, perm_c + 1, original_val, self.N, self.C)
                         permuted_clauses.append(-permuted_literal)
-                
+
                 clauses.append(permuted_clauses)
-        
+
         return clauses
 
     def write_non_isomorphic_cnf(self, original_filename, new_filename):
