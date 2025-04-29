@@ -26,9 +26,9 @@ param_grid = {
 keys = list(param_grid.keys())
 combinations = list(itertools.product(*(param_grid[key] for key in keys)))
 
-input_cnf = "lshape_18_3.cnf"
-time_limit = 120
-num_workers = os.cpu_count()
+input_cnf = "lshape_20_3.cnf"
+time_limit = 500
+num_workers = 8
 print(f"Number of workers: {num_workers}")
 
 def run_kissat(combo):
@@ -39,10 +39,9 @@ def run_kissat(combo):
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         stdout = result.stdout + result.stderr
-
         match = re.search(r"process-time:.*?([0-9.]+)\s+seconds", stdout)
         runtime = float(match.group(1)) if match else None
-
+        print(f"Runtime: {runtime}, Return code: {result.returncode}")
         return {**params, 'runtime': runtime, 'return_code': result.returncode}
     except Exception as e:
         return {**params, 'runtime': None, 'return_code': -1}
@@ -56,7 +55,7 @@ with ThreadPoolExecutor(max_workers=num_workers) as executor:
 
 # Save results
 df = pd.DataFrame(results)
-df.to_csv("runtime_grid_search.csv", index=False)
-np.save("runtime_grid_search.npy", df.to_numpy())
+df.to_csv("runtime_grid_search_20.csv", index=False)
+np.save("runtime_grid_search_20.npy", df.to_numpy())
 print("Saved runtime results")
 
